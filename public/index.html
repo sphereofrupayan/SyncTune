@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#06060b">
+  <meta name="description" content="SyncTune — Private, synchronized listening rooms. One room, one timeline, everyone stays in sync.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SyncTune</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%237c6aef'/%3E%3Cstop offset='100%25' stop-color='%23a78bfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='46' fill='url(%23g)'/%3E%3Cpath d='M40 28v36a12 12 0 1 1-6-10.4V34l28-7v33a12 12 0 1 1-6-10.4V28L40 28z' fill='white'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- Login View -->
+  <div id="loginView" class="center">
+    <div class="card login-card">
+      <div class="brand">Sync<span>Tune</span></div>
+      <p class="tagline">Private · Synchronized · Realtime</p>
+      <p class="muted">Your private, synchronized listening room.</p>
+      <form id="loginForm">
+        <input id="username" placeholder="Username" autocomplete="username" required>
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="submit">Enter room</button>
+      </form>
+      <p id="loginError" class="error"></p>
+    </div>
+  </div>
+
+  <!-- App View -->
+  <div id="appView" class="hidden">
+    <header>
+      <div>
+        <div class="brand small">Sync<span>Tune</span></div>
+        <div id="roomName" class="muted"></div>
+      </div>
+      <div class="header-right">
+        <span id="presence" class="presence-badge">0 online</span>
+        <span id="currentUser"></span>
+        <button id="themeBtn" class="ghost" type="button">☾ Night Light</button>
+        <button id="logoutBtn" class="ghost" type="button">Logout</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="hero">
+        <div class="live-pill">● LIVE ROOM</div>
+        <p class="welcome">WELCOME BACK, <span id="welcomeName">FRIEND</span></p>
+        <h1 class="dot-title" aria-label="Listen together.">Listen together.</h1>
+        <p class="hero-sub">One room. One timeline. Everyone stays synchronized.</p>
+        <form id="songForm" class="song-form">
+          <input id="youtubeUrl" placeholder="YouTube URL to play now..." required>
+          <button type="submit">Play now</button>
+        </form>
+        <p id="songError" class="error"></p>
+      </section>
+
+      <!-- Player -->
+      <section class="player-card">
+        <div id="player"></div>
+        <div id="emptyPlayer" class="empty-player">Add a YouTube song to start the room.</div>
+        <div class="controls">
+          <button id="playBtn"><span class="ctrl-icon">▶</span> Play</button>
+          <button id="pauseBtn"><span class="ctrl-icon">⏸</span> Pause</button>
+          <button id="nextBtn"><span class="ctrl-icon">⏭</span> Next</button>
+          <button id="syncBtn"><span class="ctrl-icon">⟳</span> Sync</button>
+        </div>
+        <div id="status" class="status">Waiting for a song...</div>
+      </section>
+
+      <!-- Queue -->
+      <section class="queue-card">
+        <div class="section-heading">
+          <div>
+            <h2>Shared queue</h2>
+            <p class="muted">Anyone in the room can add songs.</p>
+          </div>
+          <span class="queue-badge">ALL USERS</span>
+        </div>
+        <form id="queueForm" class="queue-form">
+          <input id="queueUrl" placeholder="Add a song to the queue..." required>
+          <button type="submit">Add to queue</button>
+        </form>
+        <p id="queueError" class="error"></p>
+        <div id="queueList" class="queue-list"><div class="queue-empty">Queue is empty</div></div>
+      </section>
+
+      <!-- Chat -->
+      <section class="chat-card">
+        <div class="section-heading">
+          <div>
+            <h2>Room chat</h2>
+            <p class="muted">Talk with everyone listening.</p>
+          </div>
+          <span class="queue-badge">LIVE</span>
+        </div>
+        <div id="chatList" class="chat-list"><div class="queue-empty">No messages yet</div></div>
+        <form id="chatForm" class="chat-form">
+          <input id="chatMessage" maxlength="500" placeholder="Write a message... 😊" autocomplete="off" required>
+          <button id="emojiBtn" class="emoji-btn" type="button" aria-label="Add smile emoji">😊</button>
+          <button id="chatSendBtn" type="submit">Send</button>
+        </form>
+        <p id="chatError" class="error chat-error" aria-live="polite"></p>
+      </section>
+
+      <!-- Admin -->
+      <section id="adminCard" class="admin-card hidden">
+        <div class="section-heading">
+          <div>
+            <div class="dashboard-label">ADMIN DASHBOARD</div>
+            <h2>Account management</h2>
+            <p class="muted">Create, view, update and remove friend accounts.</p>
+          </div>
+          <span class="admin-badge">ADMIN</span>
+        </div>
+        <div class="admin-stats">
+          <div class="stat-card"><span>Total accounts</span><strong id="totalUsers">0</strong></div>
+          <div class="stat-card"><span>Friend accounts</span><strong id="friendUsers">0</strong></div>
+        </div>
+        <div class="admin-create">
+          <div class="admin-create-title">Create new account</div>
+          <form id="adminForm" class="admin-form">
+            <input id="newUsername" placeholder="Username" autocomplete="off" required>
+            <input id="newPassword" type="password" placeholder="Password" autocomplete="new-password" required>
+            <button type="submit">Create User</button>
+          </form>
+        </div>
+        <p id="adminMessage" class="admin-message"></p>
+        <div class="users-heading"><span>Created accounts</span><span>Actions</span></div>
+        <div id="userList" class="user-list"><div class="queue-empty">Loading accounts...</div></div>
+      </section>
+
+      <!-- Footer -->
+      <footer>
+        <div class="footer-content">
+          <span>Built with precision by <strong>Rupayan</strong></span>
+          <span class="footer-dot">·</span>
+          <span class="footer-brand">Sync<span>Tune</span></span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
